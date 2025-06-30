@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+pydantic
+numpy
+psutil
+prometheus-fastapi-instrumentator==6.1.0
+# tensorflow
+keras
+celery
+python-dotenv
