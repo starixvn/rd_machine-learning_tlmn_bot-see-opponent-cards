@@ -1,0 +1,1 @@
+This project for containing the bot for TLMN with the scenario of seeing opponent cards
