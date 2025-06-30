@@ -42,10 +42,10 @@ class Bot_see_opponent_cards_2_players(object):
         Q_values = self.MLP_model.predict(state_action_array, verbose=1).flatten()
         return Q_values
 
-    def choose_best_action_with_max_Q_value(self, state, who_play_first):
+    def choose_best_action_with_max_Q_value(self, state, I_play_first):
         state_encoding = self.encode_state(state)
-        assert who_play_first in [1, 2]
-        player2_play_first = 1 if who_play_first == 2 else 0
+        assert I_play_first in [1, 0]
+        player2_play_first = I_play_first
 
         player2_card, player1_action, _, _, _ = state
         list_valid_action_player2 = self.action_generator.get_list_valid_action(player2_card, player1_action)
@@ -65,24 +65,4 @@ class Bot_see_opponent_cards_2_players(object):
 
 
 if __name__ == "__main__":
-    bot = Bot_see_opponent_cards_2_players()
-    start_time = time.time()
-    print("Case 1:")
-    player2_card = [14, 18, 19, 22, 23, 24, 26, 50]
-    player1_action = []
-    actions_card_player1 = [8, 16, 33, 40, 51]
-    actions_card_player2 = [5, 17, 35, 37, 45]
-    player1_card = [4, 7, 27, 30, 34, 36, 42, 44]
-    state = (tuple(player2_card), tuple(player1_action), tuple(actions_card_player1), 
-            tuple(actions_card_player2), tuple(player1_card))
-    bot.choose_best_action_with_max_Q_value(state, who_play_first=2)
-
-    print(f"\nCase 2:")
-    player2_card = [2, 4, 5, 11, 12, 20, 22, 24, 25, 27, 32, 47, 49]
-    player1_action = [10]
-    actions_card_player1 = [10]
-    actions_card_player2 = []
-    player1_card = [8, 14, 19, 21, 23, 26, 30, 31, 34, 39, 45, 50]
-    state = (tuple(player2_card), tuple(player1_action), tuple(actions_card_player1), 
-            tuple(actions_card_player2), tuple(player1_card))
-    bot.choose_best_action_with_max_Q_value(state, who_play_first=1)
+    pass
