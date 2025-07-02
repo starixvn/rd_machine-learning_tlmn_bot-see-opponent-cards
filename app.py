@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.utils.constant import ALLOW_ORIGINS, APP_HOST, APP_PORT
 from src.utils.endpoint_filter import EndpointFilter
 
-from main import move_2_players
+from main import move_2_players, move_3_players
 
 from fastapi import Request
 from fastapi.responses  import JSONResponse
@@ -26,9 +26,9 @@ uvicorn_logger.addFilter(EndpointFilter(path="/"))
 
 
 app = FastAPI(
-    title='TLMN_see_opponent_cards_2_players', 
+    title='TLMN_see_opponent_cards', 
     version='0.0.1',
-    root_path='/TLMN-see-opponent-cards-2-players-bot',
+    root_path='/TLMN-see-opponent-cards-bot',
     root_path_in_servers=False
 )
 
@@ -48,9 +48,19 @@ async def read_root():
 
 
 @app.post("/move_2_players")
-async def get_move(request_card: Request) -> JSONResponse:
+async def get_move_2_players(request_card: Request) -> JSONResponse:
     formated_request = await request_card.json()
     best_move = move_2_players(formated_request)
+
+    return JSONResponse(
+        content=jsonable_encoder(best_move),
+        status_code=200
+    )
+
+@app.post("/move_3_players")
+async def get_move_3_players(request_card: Request) -> JSONResponse:
+    formated_request = await request_card.json()
+    best_move = move_3_players(formated_request)
 
     return JSONResponse(
         content=jsonable_encoder(best_move),

@@ -9,7 +9,7 @@ from keras.models import load_model
 class Bot_see_opponent_cards_2_players(object):
     def __init__(self):
         self.action_generator = ActionGenerator()
-        self.MLP_model = load_model(r"src/models/TLMN_see_opponent_card_2_players.keras")
+        self.MLP_model = load_model(r"src/models/TLMN_see_opponent_cards_2_players.keras")
      
     def generate_one_hot_encoding(self, cards: tuple[int], dimension: int = 52):
         return tuple(1 if i in cards else 0 for i in range(dimension))
@@ -49,6 +49,7 @@ class Bot_see_opponent_cards_2_players(object):
 
         player2_card, player1_action, _, _, _ = state
         list_valid_action_player2 = self.action_generator.get_list_valid_action(player2_card, player1_action)
+        if len(list_valid_action_player2) == 1: return list_valid_action_player2[0]
         list_state_action_encode = []
         for action in list_valid_action_player2:
             action_encoding = self.generate_action_encoding(action)
@@ -58,7 +59,7 @@ class Bot_see_opponent_cards_2_players(object):
         Q_values = self.predict_Q_value(list_state_action_encode)
         action_to_Q_value = dict(zip(list_valid_action_player2, Q_values))
         for action, Q_value in action_to_Q_value.items():
-            print("Action: ", end=""); Card.print_pretty_cards(action, end=" => ")
+            print("Action: ", end=""); Card.print_pretty_cards(action, end=" => ")            
             print(f"Q_value = {float(Q_value)}")
         player2_action = max(action_to_Q_value.items(), key=lambda x: x[1])[0]
         return player2_action
