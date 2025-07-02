@@ -99,8 +99,8 @@ if __name__ == "__main__":
                             "player_2": [1, 6, 9, 11, 12, 13, 15, 24, 29, 34, 37, 40], 
                             "player_3": [0, 4, 5, 7, 8, 16, 19, 28, 36, 46, 47, 48, 51]},
             "player_action": {"player_2": [50], "player_3": []},
-            "turn": 2,
-            "who_play_first": 1,
+            "turn": 2, # Player id turn: 1, 2, 3
+            "who_play_first": 1, # Player id: 1, 2, 3
             "player1_skip": 0
         }
     }
