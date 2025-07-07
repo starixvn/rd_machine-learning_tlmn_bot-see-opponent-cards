@@ -1,11 +1,13 @@
 import json
 from src.service.bot_see_opponent_cards_2_players import Bot_see_opponent_cards_2_players
 from src.service.bot_see_opponent_cards_3_players import Bot_see_opponent_cards_3_players
+from src.service.bot_2_players_honestly import Bot_2_players_honestly
 
 bot_see_opponent_card_2_player = Bot_see_opponent_cards_2_players()
 bot_see_opponent_card_3_player = Bot_see_opponent_cards_3_players()
+bot_2_players_honestly = Bot_2_players_honestly()
 
-def move_2_players(formated_request) -> tuple:
+def move_2_players(formated_request):
 
     if isinstance(formated_request, str):
         formated_request = json.loads(formated_request)
@@ -20,6 +22,41 @@ def move_2_players(formated_request) -> tuple:
     state = (tuple(our_card), tuple(opponent_action), tuple(opponent_actions_card), 
             tuple(our_actions_card), tuple(opponent_card))
     best_move = bot_see_opponent_card_2_player.choose_best_action_with_max_Q_value(
+        state, I_play_first
+    )
+    return {"best_move": best_move}
+
+def cal_deck_remain(our_initial_card, opponent_actions_card):
+    return [card for card in range(52) 
+            if card not in our_initial_card and card not in opponent_actions_card]
+
+def move_2_players_honestly(formated_request):
+
+    if isinstance(formated_request, str):
+        formated_request = json.loads(formated_request)
+
+    our_initial_card = formated_request['private']['our_initial_card']
+    our_card = formated_request['private']['our_card']
+    opponent_action = formated_request['private']['opponent_action']
+    opponent_actions_card = formated_request['private']['opponent_actions_card']
+    our_actions_card = formated_request['private']['our_actions_card']
+    deck_remain = cal_deck_remain(our_initial_card, opponent_actions_card)
+    len_opponent_card = 13 - len(opponent_actions_card)
+    I_play_first = formated_request['private']['I_play_first']
+
+    assert len(our_initial_card) == 13, "Our initial card must have 13 cards"
+    assert set(our_card).union(set(our_actions_card)) == set(our_initial_card), "Union of our_card and our_actions_card must equal our_initial_card"
+    assert set(opponent_action).issubset(set(opponent_actions_card)), "Opponent action must be subset of opponent actions card"
+    assert len(deck_remain) == 39 - len(opponent_actions_card), "Length of deck_remain must be equal to 39 - len(opponent_actions_card)"
+    assert not set(deck_remain).intersection(set(our_initial_card)), "deck_remain must not intersect with our_initial_card"
+    assert not set(deck_remain).intersection(set(opponent_actions_card)), "deck_remain must not intersect with opponent_actions_card"
+    assert isinstance(len_opponent_card, int), "len_opponent_card must be an integer"
+    assert 1 <= len_opponent_card <= 13, "len_opponent_card must be between 1 and 13"
+    assert I_play_first in [0, 1], "I_play_first must be 0 or 1"
+
+    state = (tuple(our_card), tuple(opponent_action), tuple(opponent_actions_card), 
+            tuple(our_actions_card), tuple(deck_remain), len_opponent_card)
+    best_move = bot_2_players_honestly.choose_best_action_with_max_Q_value(
         state, I_play_first
     )
     return {"best_move": best_move}
@@ -42,7 +79,7 @@ def convert_initial_player_card(initial_player_card):
     assert all(len(cards) == 13 for cards in rename_initial_player_card.values())
     return rename_initial_player_card
 
-def move_3_players(formated_request) -> tuple:
+def move_3_players(formated_request):
 
     if isinstance(formated_request, str):
         formated_request = json.loads(formated_request)
@@ -66,58 +103,94 @@ def move_3_players(formated_request) -> tuple:
     return {"best_move": best_move}
 
 if __name__ == "__main__":
+    # formated_request = {
+    #     "private": {
+    #         "our_card": [2, 4, 5, 11, 12, 20, 22, 24, 25, 27, 32, 47, 49],
+    #         "opponent_action": [10],
+    #         "opponent_actions_card": [10],
+    #         "our_actions_card": [],
+    #         "opponent_card": [8, 14, 19, 21, 23, 26, 30, 31, 34, 39, 45, 50],
+    #         "I_play_first": 0
+    #     }
+    # }
+    # print(f"Best move is: {move_2_players(formated_request)}")
+
+    # formated_request = {
+    #     "private": {
+    #         "our_card": [14, 18, 19, 22, 23, 24, 26, 50],
+    #         "opponent_action": [],
+    #         "opponent_actions_card": [8, 16, 33, 40, 51],
+    #         "our_actions_card": [5, 17, 35, 37, 45],
+    #         "opponent_card": [4, 7, 27, 30, 34, 36, 42, 44],
+    #         "I_play_first": 1
+    #     }
+    # }
+    # print(f"Best move is: {move_2_players(formated_request)}")
+
+    # formated_request = {
+    #     "private": {
+    #         "initial_player_card": {"player_1": [20, 21, 22, 23, 25, 26, 32, 33, 35, 38, 42, 43, 45], 
+    #                                 "player_2": [1, 6, 9, 11, 12, 13, 15, 24, 29, 34, 37, 40, 50], 
+    #                                 "player_3": [0, 4, 5, 7, 8, 16, 19, 28, 36, 46, 47, 48, 51]},
+    #         "player_card": {"player_1": [20, 21, 22, 23, 25, 26, 33, 35, 38, 42, 43, 45], 
+    #                         "player_2": [1, 6, 9, 11, 12, 13, 15, 24, 29, 34, 37, 40], 
+    #                         "player_3": [0, 4, 5, 7, 8, 16, 19, 28, 36, 46, 47, 48, 51]},
+    #         "player_action": {"player_2": [50], "player_3": []},
+    #         "turn": 2, # Player id turn: 1, 2, 3
+    #         "who_play_first": 1, # Player id: 1, 2, 3
+    #         "player1_skip": 0
+    #     }
+    # }
+    # print(f"Best move is: {move_3_players(formated_request)}")
+
+    # formated_request = {
+    #     "private": {
+    #         "initial_player_card": {"player_1": [0, 10, 11, 14, 17, 20, 24, 25, 28, 38, 49, 50, 51], 
+    #                                 "player_2": [3, 6, 7, 8, 12, 16, 22, 26, 29, 34, 37, 45, 46], 
+    #                                 "player_3": [1, 4, 15, 23, 32, 35, 36, 40, 41, 42, 43, 47, 48]},
+    #         "player_card": {"player_1": [11, 14, 17, 51], 
+    #                         "player_2": [3, 7, 8, 12, 16, 22, 26, 29, 34, 37, 45, 46], 
+    #                         "player_3": [32, 35, 41, 42]},
+    #         "player_action": {"player_2": [], "player_3": []},
+    #         "turn": 1,
+    #         "who_play_first": 1,
+    #         "player1_skip": 0
+    #     }
+    # }
+    # print(f"Best move is: {move_3_players(formated_request)}")
+
     formated_request = {
         "private": {
-            "our_card": [2, 4, 5, 11, 12, 20, 22, 24, 25, 27, 32, 47, 49],
-            "opponent_action": [10],
-            "opponent_actions_card": [10],
-            "our_actions_card": [],
-            "opponent_card": [8, 14, 19, 21, 23, 26, 30, 31, 34, 39, 45, 50],
+            "our_initial_card": [3, 13, 14, 18, 19, 23, 25, 28, 33, 34, 48, 49, 51],
+            "our_card": [3, 48, 49],
+            "opponent_action": [],
+            "opponent_actions_card": [1, 4, 6, 7, 8, 10, 16, 31, 39, 40, 42, 47],
+            "our_actions_card": [13, 14, 18, 19, 23, 25, 28, 33, 34, 51],
             "I_play_first": 0
         }
     }
-    print(f"Best move is: {move_2_players(formated_request)}")
+    print(f"Best move 2 players honestly is: {move_2_players_honestly(formated_request)}")
 
     formated_request = {
         "private": {
-            "our_card": [14, 18, 19, 22, 23, 24, 26, 50],
+            "our_initial_card": [3, 13, 14, 18, 19, 23, 25, 28, 33, 34, 48, 49, 51],
+            "our_card": [3, 23, 25, 28, 34, 49],
             "opponent_action": [],
-            "opponent_actions_card": [8, 16, 33, 40, 51],
-            "our_actions_card": [5, 17, 35, 37, 45],
-            "opponent_card": [4, 7, 27, 30, 34, 36, 42, 44],
-            "I_play_first": 1
+            "opponent_actions_card": [1, 4, 6, 7, 8, 10, 16, 31, 39, 40, 42, 47],
+            "our_actions_card": [13, 14, 18, 19, 33, 48, 51],
+            "I_play_first": 0
         }
     }
-    print(f"Best move is: {move_2_players(formated_request)}")
+    print(f"Best move 2 players honestly is: {move_2_players_honestly(formated_request)}")
 
     formated_request = {
         "private": {
-            "initial_player_card": {"player_1": [20, 21, 22, 23, 25, 26, 32, 33, 35, 38, 42, 43, 45], 
-                                    "player_2": [1, 6, 9, 11, 12, 13, 15, 24, 29, 34, 37, 40, 50], 
-                                    "player_3": [0, 4, 5, 7, 8, 16, 19, 28, 36, 46, 47, 48, 51]},
-            "player_card": {"player_1": [20, 21, 22, 23, 25, 26, 33, 35, 38, 42, 43, 45], 
-                            "player_2": [1, 6, 9, 11, 12, 13, 15, 24, 29, 34, 37, 40], 
-                            "player_3": [0, 4, 5, 7, 8, 16, 19, 28, 36, 46, 47, 48, 51]},
-            "player_action": {"player_2": [50], "player_3": []},
-            "turn": 2, # Player id turn: 1, 2, 3
-            "who_play_first": 1, # Player id: 1, 2, 3
-            "player1_skip": 0
+            "our_initial_card": [3, 13, 14, 18, 19, 23, 25, 28, 33, 34, 48, 49, 51],
+            "our_card": [3, 13, 14, 18, 19, 23, 25, 28, 33, 34],
+            "opponent_action": [],
+            "opponent_actions_card": [1, 4, 6, 7, 8, 10, 16, 31, 39, 40, 42, 47],
+            "our_actions_card": [48, 49, 51],
+            "I_play_first": 0
         }
     }
-    print(f"Best move is: {move_3_players(formated_request)}")
-
-    formated_request = {
-        "private": {
-            "initial_player_card": {"player_1": [0, 10, 11, 14, 17, 20, 24, 25, 28, 38, 49, 50, 51], 
-                                    "player_2": [3, 6, 7, 8, 12, 16, 22, 26, 29, 34, 37, 45, 46], 
-                                    "player_3": [1, 4, 15, 23, 32, 35, 36, 40, 41, 42, 43, 47, 48]},
-            "player_card": {"player_1": [11, 14, 17, 51], 
-                            "player_2": [3, 7, 8, 12, 16, 22, 26, 29, 34, 37, 45, 46], 
-                            "player_3": [32, 35, 41, 42]},
-            "player_action": {"player_2": [], "player_3": []},
-            "turn": 1,
-            "who_play_first": 1,
-            "player1_skip": 0
-        }
-    }
-    print(f"Best move is: {move_3_players(formated_request)}")
+    print(f"Best move 2 players honestly is: {move_2_players_honestly(formated_request)}")

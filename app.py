@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.utils.constant import ALLOW_ORIGINS, APP_HOST, APP_PORT
 from src.utils.endpoint_filter import EndpointFilter
 
-from main import move_2_players, move_3_players
+from main import move_2_players, move_3_players, move_2_players_honestly
 
 from fastapi import Request
 from fastapi.responses  import JSONResponse
@@ -51,6 +51,16 @@ async def read_root():
 async def get_move_2_players(request_card: Request) -> JSONResponse:
     formated_request = await request_card.json()
     best_move = move_2_players(formated_request)
+
+    return JSONResponse(
+        content=jsonable_encoder(best_move),
+        status_code=200
+    )
+
+@app.post("/move_2_players_honestly")
+async def get_move_2_players_honestly(request_card: Request) -> JSONResponse:
+    formated_request = await request_card.json()
+    best_move = move_2_players_honestly(formated_request)
 
     return JSONResponse(
         content=jsonable_encoder(best_move),
