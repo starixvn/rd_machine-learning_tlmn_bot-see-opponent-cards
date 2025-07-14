@@ -9,22 +9,24 @@ bot_2_players_honestly = Bot_2_players_honestly()
 
 def move_2_players(formated_request):
 
-    if isinstance(formated_request, str):
-        formated_request = json.loads(formated_request)
+    # if isinstance(formated_request, str):
+    #     formated_request = json.loads(formated_request)
 
-    our_card = formated_request['private']['our_card']
-    opponent_action = formated_request['private']['opponent_action']
-    opponent_actions_card = formated_request['private']['opponent_actions_card']
-    our_actions_card = formated_request['private']['our_actions_card']
-    opponent_card = formated_request['private']['opponent_card']
-    I_play_first = formated_request['private']['I_play_first']
+    # our_card = formated_request['private']['our_card']
+    # opponent_action = formated_request['private']['opponent_action']
+    # opponent_actions_card = formated_request['private']['opponent_actions_card']
+    # our_actions_card = formated_request['private']['our_actions_card']
+    # opponent_card = formated_request['private']['opponent_card']
+    # I_play_first = formated_request['private']['I_play_first']
 
-    state = (tuple(our_card), tuple(opponent_action), tuple(opponent_actions_card), 
-            tuple(our_actions_card), tuple(opponent_card))
-    best_move = bot_see_opponent_card_2_player.choose_best_action_with_max_Q_value(
-        state, I_play_first
-    )
-    return {"best_move": best_move}
+    # state = (tuple(our_card), tuple(opponent_action), tuple(opponent_actions_card), 
+    #         tuple(our_actions_card), tuple(opponent_card))
+    # best_move = bot_see_opponent_card_2_player.choose_best_action_with_max_Q_value(
+    #     state, I_play_first
+    # )
+    # return {"best_move": best_move}
+    message = "This endpoint is temporary not available. We are updating this model"
+    return {"best_move": message}
 
 def cal_deck_remain(our_initial_card, opponent_actions_card):
     return [card for card in range(52) 
@@ -84,26 +86,28 @@ def convert_initial_player_card(initial_player_card):
 
 def move_3_players(formated_request):
 
-    if isinstance(formated_request, str):
-        formated_request = json.loads(formated_request)
+    # if isinstance(formated_request, str):
+    #     formated_request = json.loads(formated_request)
 
-    initial_player_card = formated_request['private']['initial_player_card']
-    player_card = formated_request['private']['player_card']
-    player_action = formated_request['private']['player_action']
-    turn = formated_request['private']['turn']
-    who_play_first = formated_request['private']['who_play_first']
-    player1_skip = formated_request['private']['player1_skip']
-    assert set(initial_player_card.keys()) == set(player_card.keys()) == {"player_1", "player_2", "player_3"}
-    assert all(len(cards) == 13 for cards in initial_player_card.values())
-    assert set(player_action.keys()) == {"player_2", "player_3"}
-    assert player1_skip in [0, 1]
+    # initial_player_card = formated_request['private']['initial_player_card']
+    # player_card = formated_request['private']['player_card']
+    # player_action = formated_request['private']['player_action']
+    # turn = formated_request['private']['turn']
+    # who_play_first = formated_request['private']['who_play_first']
+    # player1_skip = formated_request['private']['player1_skip']
+    # assert set(initial_player_card.keys()) == set(player_card.keys()) == {"player_1", "player_2", "player_3"}
+    # assert all(len(cards) == 13 for cards in initial_player_card.values())
+    # assert set(player_action.keys()) == {"player_2", "player_3"}
+    # assert player1_skip in [0, 1]
 
-    state = compress_to_state(player_card, player_action, turn)
-    initial_player_card = convert_initial_player_card(initial_player_card)
-    best_move = bot_see_opponent_card_3_player.choose_best_action_with_max_Q_value(
-        state, initial_player_card, who_play_first, player1_skip
-    )
-    return {"best_move": best_move}
+    # state = compress_to_state(player_card, player_action, turn)
+    # initial_player_card = convert_initial_player_card(initial_player_card)
+    # best_move = bot_see_opponent_card_3_player.choose_best_action_with_max_Q_value(
+    #     state, initial_player_card, who_play_first, player1_skip
+    # )
+    # return {"best_move": best_move}
+    message = "This endpoint is temporary not available. We are updating this model"
+    return {"best_move": message}
 
 if __name__ == "__main__":
     # formated_request = {
