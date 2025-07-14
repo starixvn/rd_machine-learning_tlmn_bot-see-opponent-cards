@@ -42,10 +42,12 @@ def move_2_players_honestly(formated_request):
     our_actions_card = formated_request['private']['our_actions_card']
     deck_remain = cal_deck_remain(our_initial_card, opponent_actions_card)
     len_opponent_card = 13 - len(opponent_actions_card)
+    print(f"len_opponent_card = {len_opponent_card}")
     I_play_first = formated_request['private']['I_play_first']
 
     assert len(our_initial_card) == 13, "Our initial card must have 13 cards"
     assert set(our_card).union(set(our_actions_card)) == set(our_initial_card), "Union of our_card and our_actions_card must equal our_initial_card"
+    assert not set(our_card).intersection(set(our_actions_card)), "our_card and our_actions_card must be disjoint"
     assert set(opponent_action).issubset(set(opponent_actions_card)), "Opponent action must be subset of opponent actions card"
     assert len(deck_remain) == 39 - len(opponent_actions_card), "Length of deck_remain must be equal to 39 - len(opponent_actions_card)"
     assert not set(deck_remain).intersection(set(our_initial_card)), "deck_remain must not intersect with our_initial_card"
@@ -53,6 +55,7 @@ def move_2_players_honestly(formated_request):
     assert isinstance(len_opponent_card, int), "len_opponent_card must be an integer"
     assert 1 <= len_opponent_card <= 13, "len_opponent_card must be between 1 and 13"
     assert I_play_first in [0, 1], "I_play_first must be 0 or 1"
+    print(f"The model directory is: {bot_2_players_honestly.model_dir}")
 
     state = (tuple(our_card), tuple(opponent_action), tuple(opponent_actions_card), 
             tuple(our_actions_card), tuple(deck_remain), len_opponent_card)
@@ -194,3 +197,30 @@ if __name__ == "__main__":
         }
     }
     print(f"Best move 2 players honestly is: {move_2_players_honestly(formated_request)}")
+
+    formated_request = {
+        "private": {
+            "our_initial_card": [1, 6, 7, 8, 9, 10, 11, 12, 25, 29, 36, 49, 51],
+            "our_card": [49, 51],
+            "opponent_action": [],
+            "opponent_actions_card": [4, 5, 18, 19, 20, 24, 28, 30, 32, 33, 35, 44],
+            "our_actions_card": [1, 6, 7, 8, 9, 10, 11, 12, 25, 29, 36],
+            "I_play_first": 1
+        }
+    }
+    print(f"Best move 2 players honestly is: {move_2_players_honestly(formated_request)}")
+
+    formated_request = {
+        "private": {
+            "our_initial_card": [4, 7, 8, 10, 13, 14, 17, 18, 19, 21, 28, 35, 47],
+            "our_card": [10, 14, 19, 21, 28],
+            "opponent_action": [],
+            "opponent_actions_card": [0, 2, 5, 12, 20, 23, 32, 34, 36, 37, 41, 46],
+            "our_actions_card": [4, 7, 8, 13, 17, 18, 35, 47],
+            "I_play_first": 0
+        }
+    }
+    output = move_2_players_honestly(formated_request)
+    print(f"Best move 2 players honestly is: {output}")
+    from src.tienlen_libs import Card
+    Card.print_pretty_cards(output["best_move"])

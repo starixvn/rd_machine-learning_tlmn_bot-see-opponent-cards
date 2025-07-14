@@ -7,9 +7,11 @@ from keras.models import load_model
 
 
 class Bot_2_players_honestly(object):
-    def __init__(self):
+    def __init__(self,
+                 model_dir=r"src/models/TLMN_2_players_honestly_newer.keras"):
         self.action_generator = ActionGenerator()
-        self.MLP_model = load_model(r"src/models/TLMN_2_players_honestly.keras")
+        self.model_dir = model_dir
+        self.MLP_model = load_model(self.model_dir)
      
     def generate_one_hot_encoding(self, cards: tuple[int], dimension: int = 52):
         return tuple(1 if i in cards else 0 for i in range(dimension))
