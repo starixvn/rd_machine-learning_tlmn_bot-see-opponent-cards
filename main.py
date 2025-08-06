@@ -213,15 +213,16 @@ if __name__ == "__main__":
         }
     }
     print(f"Best move 2 players honestly is: {move_2_players_honestly(formated_request)}")
+    print("\n\n")
 
     formated_request = {
         "private": {
-            "our_initial_card": [4, 7, 8, 10, 13, 14, 17, 18, 19, 21, 28, 35, 47],
-            "our_card": [10, 14, 19, 21, 28],
+            "our_initial_card": [2, 6, 14, 18, 21, 23, 25, 27, 29, 30, 34, 48, 49],
+            "our_card": [23, 27, 30, 34],
             "opponent_action": [],
-            "opponent_actions_card": [0, 2, 5, 12, 20, 23, 32, 34, 36, 37, 41, 46],
-            "our_actions_card": [4, 7, 8, 13, 17, 18, 35, 47],
-            "I_play_first": 0
+            "opponent_actions_card": [0, 4, 5, 8, 35, 38, 39, 40, 42, 44, 45],
+            "our_actions_card": [2, 6, 14, 18, 21, 25, 29, 48, 49],
+            "I_play_first": 1
         }
     }
     output = move_2_players_honestly(formated_request)
