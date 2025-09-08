@@ -7,3 +7,12 @@ unit_test:
   stage: test
   script:
     - echo "Unit test"
+  tags:
+    - ci
+
+sonar_test:
+  stage: test
+  script:
+    - echo "Sonar test"
+  tags:
+    - ci
