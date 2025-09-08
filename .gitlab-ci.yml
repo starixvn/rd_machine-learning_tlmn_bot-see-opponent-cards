@@ -2,3 +2,13 @@ include:
   - project: ci/core-cicd
     ref: main
     file: luminet.gitlab-ci.yml
+
+unit_test:
+  stage: test
+  script:
+    - python -m pytest tests/
+  artifacts:
+    paths:
+      - tests/
+    reports:
+      junit: tests/junit.xml
