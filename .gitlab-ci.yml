@@ -2,3 +2,17 @@ include:
   - project: ci/core-cicd
     ref: main
     file: luminet.gitlab-ci.yml
+
+unit_test:
+  stage: test
+  script:
+    - echo "Unit test"
+  tags:
+    - ci
+
+sonar_test:
+  stage: test
+  script:
+    - echo "Sonar test"
+  tags:
+    - ci
