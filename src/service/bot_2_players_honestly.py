@@ -9,7 +9,7 @@ from keras.models import load_model
 
 class Bot_2_players_honestly(object):
     def __init__(self,
-                 model_dir=r"src/models/Bot_TLMN_solo_medium_level.keras"):
+                 model_dir):
         self.action_generator = ActionGenerator()
         self.model_dir = model_dir
         self.MLP_model = load_model(self.model_dir)

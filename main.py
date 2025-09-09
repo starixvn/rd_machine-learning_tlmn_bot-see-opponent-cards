@@ -5,7 +5,8 @@ from src.service.bot_2_players_honestly import Bot_2_players_honestly
 
 bot_see_opponent_card_2_player = Bot_see_opponent_cards_2_players()
 bot_see_opponent_card_3_player = Bot_see_opponent_cards_3_players()
-bot_2_players_honestly = Bot_2_players_honestly()
+medium_bot_2_players_honestly = Bot_2_players_honestly(model_dir=r"src/models/Bot_TLMN_solo_medium_level.keras")
+hard_bot_2_players_honestly = Bot_2_players_honestly(model_dir=r"src/models/Bot_TLMN_solo_hard_level.keras")
 
 def move_2_players(formated_request):
 
@@ -46,6 +47,7 @@ def move_2_players_honestly(formated_request):
     len_opponent_card = 13 - len(opponent_actions_card)
     print(f"len_opponent_card = {len_opponent_card}")
     I_play_first = formated_request['private']['I_play_first']
+    bot_level = formated_request['private'].get('bot_level', 'hard')
 
     assert len(our_initial_card) == 13, "Our initial card must have 13 cards"
     assert set(our_card).union(set(our_actions_card)) == set(our_initial_card), "Union of our_card and our_actions_card must equal our_initial_card"
@@ -57,11 +59,17 @@ def move_2_players_honestly(formated_request):
     assert isinstance(len_opponent_card, int), "len_opponent_card must be an integer"
     assert 1 <= len_opponent_card <= 13, "len_opponent_card must be between 1 and 13"
     assert I_play_first in [0, 1], "I_play_first must be 0 or 1"
-    print(f"The model directory is: {bot_2_players_honestly.model_dir}")
+    assert bot_level in ["hard", "medium"], "bot_level field must be either 'hard' or 'medium'"
+    
+    if bot_level == "hard":
+        bot_2_players_honestly_cls = hard_bot_2_players_honestly
+    else:
+        bot_2_players_honestly_cls = medium_bot_2_players_honestly
+    print(f"The model directory is: {bot_2_players_honestly_cls.model_dir}")
 
     state = (tuple(our_card), tuple(opponent_action), tuple(opponent_actions_card), 
             tuple(our_actions_card), tuple(deck_remain), len_opponent_card)
-    best_move = bot_2_players_honestly.choose_best_action_with_max_Q_value(
+    best_move = bot_2_players_honestly_cls.choose_best_action_with_max_Q_value(
         state, I_play_first
     )
     return {"best_move": best_move}
@@ -217,12 +225,12 @@ if __name__ == "__main__":
 
     formated_request = {
         "private": {
-            "our_initial_card": [2, 6, 14, 18, 21, 23, 25, 27, 29, 30, 34, 48, 49],
-            "our_card": [23, 27, 30, 34],
+            "our_initial_card": [3, 20, 21, 22, 23, 32, 35, 36, 39, 40, 41, 42, 51],
+            "our_card": [23, 32, 35, 39, 41, 42, 51],
             "opponent_action": [],
-            "opponent_actions_card": [0, 4, 5, 8, 35, 38, 39, 40, 42, 44, 45],
-            "our_actions_card": [2, 6, 14, 18, 21, 25, 29, 48, 49],
-            "I_play_first": 1
+            "opponent_actions_card": [0, 1, 7, 8, 9, 11, 13, 26, 29, 34, 38, 49],
+            "our_actions_card": [3, 20, 21, 22, 36, 40],
+            "I_play_first": 0
         }
     }
     output = move_2_players_honestly(formated_request)
