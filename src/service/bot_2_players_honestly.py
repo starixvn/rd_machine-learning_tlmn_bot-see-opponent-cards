@@ -5,6 +5,7 @@ import os
 import numpy as np
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 from keras.models import load_model
+import tensorflow as tf
 
 
 class Bot_2_players_honestly(object):
@@ -69,14 +70,18 @@ class Bot_2_players_honestly(object):
                     # action_encoding + (player2_play_first, expected_return)
         return state_encode
     
+    @tf.function(input_signature=[tf.TensorSpec([None, 370], tf.float64)])
+    def infer(self, x):
+        return self.MLP_model(x, training=False)
+
     def predict_Q_value(self, list_state_action_encode):
         state_action_array = np.array(list_state_action_encode, dtype=np.float64)
         assert all(x in [0, 1] for x in state_action_array.flatten()), "Input must contain only 0s and 1s"
-        Q_values = self.MLP_model.predict(state_action_array, verbose=1).flatten()
+        Q_values = tf.squeeze(self.infer(state_action_array))
         return Q_values
     
     def print_state(self, state, player2_play_first):
-        print(f"\nstate = {state}")
+        print(f"state = {state}")
         print(f"player2_play_first = {player2_play_first}")
         print(f"Player 2 card: ", end="")
         Card.print_pretty_cards(state[0])
@@ -101,6 +106,7 @@ class Bot_2_players_honestly(object):
 
         Q_values = self.predict_Q_value(list_state_action_encode)
         action_to_Q_value_sort = sorted(zip(list_valid_action_player2, Q_values), key=lambda item: item[1])
+        print(f"\nThe model directory is: {self.model_dir}")
         self.print_state(state, player2_play_first)
         for action, Q_value in action_to_Q_value_sort:
             print("Action: ", end=""); Card.print_pretty_cards(action, end=" => ")            

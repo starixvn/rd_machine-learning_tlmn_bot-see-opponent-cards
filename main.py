@@ -45,7 +45,6 @@ def move_2_players_honestly(formated_request):
     our_actions_card = formated_request['private']['our_actions_card']
     deck_remain = cal_deck_remain(our_initial_card, opponent_actions_card)
     len_opponent_card = 13 - len(opponent_actions_card)
-    print(f"len_opponent_card = {len_opponent_card}")
     I_play_first = formated_request['private']['I_play_first']
     bot_level = formated_request['private'].get('bot_level', 'hard')
 
@@ -65,7 +64,6 @@ def move_2_players_honestly(formated_request):
         bot_2_players_honestly_cls = hard_bot_2_players_honestly
     else:
         bot_2_players_honestly_cls = medium_bot_2_players_honestly
-    print(f"The model directory is: {bot_2_players_honestly_cls.model_dir}")
 
     state = (tuple(our_card), tuple(opponent_action), tuple(opponent_actions_card), 
             tuple(our_actions_card), tuple(deck_remain), len_opponent_card)
