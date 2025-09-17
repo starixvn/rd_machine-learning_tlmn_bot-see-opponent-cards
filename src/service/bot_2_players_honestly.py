@@ -13,6 +13,7 @@ class Bot_2_players_honestly(object):
         self.action_generator = ActionGenerator()
         self.model_dir = model_dir
         self.MLP_model = load_model(self.model_dir)
+        self.tolerance_pass = 1.5
      
     def generate_one_hot_encoding(self, cards: tuple[int], dimension: int = 52):
         return tuple(1 if i in cards else 0 for i in range(dimension))
@@ -74,14 +75,14 @@ class Bot_2_players_honestly(object):
         Q_values = self.MLP_model.predict(state_action_array, verbose=1).flatten()
         return Q_values
     
-    def print_list_valid_action_player2(self, list_valid_action_player2):
-        print(f"List valid action: ", end="")
-        for action in list_valid_action_player2:
-            if len(action) == 0:
-                print("PASS", end="; ")
-            else:
-                Card.print_pretty_cards(action, end="; ")
-        print()
+    def print_state(self, state, player2_play_first):
+        print(f"\nstate = {state}")
+        print(f"player2_play_first = {player2_play_first}")
+        print(f"Player 2 card: ", end="")
+        Card.print_pretty_cards(state[0])
+        print(f"Player 1 action: ", end="")
+        Card.print_pretty_cards(state[1])
+        print(f"len_player1_card = {state[-1]}")
 
     def choose_best_action_with_max_Q_value(self, state, I_play_first):
         state_encoding = self.encode_state(state)
@@ -90,7 +91,6 @@ class Bot_2_players_honestly(object):
 
         player2_card, player1_action, _, _, _, _ = state
         list_valid_action_player2 = self.action_generator.get_list_valid_action(player2_card, player1_action)
-        self.print_list_valid_action_player2(list_valid_action_player2)
         if len(list_valid_action_player2) == 1: return list_valid_action_player2[0]
         list_state_action_encode = []
         for action in list_valid_action_player2:
@@ -100,11 +100,17 @@ class Bot_2_players_honestly(object):
             list_state_action_encode.append(state_action_encode)
 
         Q_values = self.predict_Q_value(list_state_action_encode)
-        action_to_Q_value = dict(zip(list_valid_action_player2, Q_values))
-        for action, Q_value in action_to_Q_value.items():
+        action_to_Q_value_sort = sorted(zip(list_valid_action_player2, Q_values), key=lambda item: item[1])
+        self.print_state(state, player2_play_first)
+        for action, Q_value in action_to_Q_value_sort:
             print("Action: ", end=""); Card.print_pretty_cards(action, end=" => ")            
-            print(f"Q_value = {float(Q_value)}")
-        player2_action = max(action_to_Q_value.items(), key=lambda x: x[1])[0]
+            print(f"Q_value = {float(Q_value):.4f}")
+        
+        player2_action = action_to_Q_value_sort[-1][0]
+        if "hard" in self.model_dir and player2_action == tuple():
+            if abs(action_to_Q_value_sort[-1][1] - action_to_Q_value_sort[-2][1]) < self.tolerance_pass:
+                player2_action = action_to_Q_value_sort[-2][0]
+        print("===> We choose Player 2 action: ", end=""); Card.print_pretty_cards(player2_action)
         return player2_action
 
 

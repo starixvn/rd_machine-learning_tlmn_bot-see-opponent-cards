@@ -69,9 +69,6 @@ def move_2_players_honestly(formated_request):
 
     state = (tuple(our_card), tuple(opponent_action), tuple(opponent_actions_card), 
             tuple(our_actions_card), tuple(deck_remain), len_opponent_card)
-    print(f"state = {state}")
-    print(f"I_play_first = {I_play_first}")
-    print(f"our_initial_card = {our_initial_card}")
     best_move = bot_2_players_honestly_cls.choose_best_action_with_max_Q_value(
         state, I_play_first
     )
